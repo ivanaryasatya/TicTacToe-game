@@ -11,9 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tic Tac Toe Seru!',
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+        primaryColor: const Color.fromARGB(255, 60, 120, 180),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: const Color.fromARGB(255, 60, 120, 180),
+          secondary: const Color.fromARGB(255, 255, 180, 60),
+        ),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 141, 206, 214),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const GameScreen(),
@@ -147,74 +151,109 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tic Tac Toe Seru!'),
+        title: const Text('Tic Tac Toe!'),
         centerTitle: true,
       ),
-      backgroundColor: Color.fromARGB(255, 141, 206, 214),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              winner != null
-                  ? 'Pemenangnya adalah ${winner == 'X' ? 'Merah (X)' : 'Hijau (O)'}!'
-                  : gameEnded
-                      ? 'Seri!'
-                      : 'Giliran: ${currentPlayer == 'X' ? 'Merah (X)' : 'Hijau (O)'}',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            GridView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-              ),
-              itemCount: 9,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () => _handleTap(index),
-                  child: ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black12),
-                      ),
-                      margin: const EdgeInsets.all(8),
-                      child: Center(
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: _getColor(board[index]),
-                          ),
-                          child: Text(board[index] ?? ''),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _resetGame,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade400,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+      backgroundColor: const Color.fromARGB(255, 141, 206, 214),
+      body: Stack(
+        children: [
+          // Gradasi lingkaran di bawah layar
+          Positioned(
+            left: -100,
+            right: -100,
+            bottom: -150,
+            child: Container(
+              height: 400,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Color.fromARGB(255, 51, 96, 141),
+                    Color.fromARGB(255, 141, 206, 214),
+                  ],
+                  center: Alignment.bottomCenter,
+                  radius: 0.8,
                 ),
               ),
-              child: const Text('Mulai Ulang'),
             ),
-          ],
-        ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                    (() {
+                    if (winner != null) {
+                      return 'Pemenangnya adalah ${winner == 'X' ? 'Merah (X)' : 'Hijau (O)'}!';
+                    } else if (gameEnded) {
+                      return 'Seri!';
+                    } else {
+                      return 'Giliran: ${currentPlayer == 'X' ? 'Merah (X)' : 'Hijau (O)'}';
+                    }
+                    })(),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 50),
+                GridView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                  ),
+                  itemCount: 9,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () => _handleTap(index),
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.black12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color.fromARGB(255, 255, 254, 254).withOpacity(0.5),
+                                blurRadius: 10,
+                                offset: const Offset(2, 4),
+                              ),
+                            ],
+                          ),
+                          margin: const EdgeInsets.all(8),
+                          child: Center(
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+                              style: TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: _getColor(board[index]),
+                              ),
+                              child: Text(board[index] ?? ''),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _resetGame,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade400,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 18),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text('Mulai Ulang'),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
